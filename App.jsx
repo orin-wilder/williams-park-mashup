@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 // VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_ANTHROPIC_API_KEY
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL ?? "https://nzcogxjcihgtevjiuipf.supabase.co";
 const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56Y29neGpjaWhndGV2aml1aXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTIxMzcsImV4cCI6MjA4NjQyODEzN30.hGREfoM3QWXWVKndGBmy3TGbHO7o1tt-eNH3NWbtOZU";
-const ANTHROPIC_API_KEY = import.meta.env?.VITE_ANTHROPIC_API_KEY ?? "";
+// Anthropic API key is now server-side only (in Netlify Edge Function)
 
 // ─── SUPABASE ────────────────────────────────────────────────────────────────h
 async function saveIdeaToSupabase(idea) {
@@ -46,22 +46,16 @@ async function saveCardSortToSupabase(scores, rounds) {
   if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
 }
 
-// ─── CLAUDE API ──────────────────────────────────────────────────────────────
+// ─── CLAUDE API (via Netlify Edge Function) ──────────────────────────────────
 async function callClaude(term1, term2) {
-  const systemPrompt = `You are a park programming assistant for Williams Park in St. Petersburg, Florida — a diverse, historic downtown park serving families, seniors, young professionals, artists, and unhoused neighbors. A user has combined two concepts to generate a new park idea. Write a 2-3 sentence description of what this program or feature could look like in practice. Be specific, grounded, and locally relevant to St. Pete's culture. If either input is inappropriate, offensive, or irrelevant to a public park, respond only with the word REJECTED and nothing else. If an input is mildly off but salvageable, interpret it charitably and use a cleaned-up version in your description without flagging it.`;
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/api/ideate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 200,
-      system: systemPrompt,
-      messages: [{ role: "user", content: `Combine these two park concepts into one idea: "${term1}" + "${term2}"` }],
-    }),
+    body: JSON.stringify({ term1, term2 }),
   });
   const data = await res.json();
-  return data.content?.[0]?.text?.trim() ?? "REJECTED";
+  if (!res.ok) throw new Error(data.error || "API error");
+  return data.result ?? "REJECTED";
 }
 
 // ─── WORD LISTS ──────────────────────────────────────────────────────────────
