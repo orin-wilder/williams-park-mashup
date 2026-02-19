@@ -7,7 +7,7 @@ const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL ?? "https://nzcogxjcihgt
 const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56Y29neGpjaWhndGV2aml1aXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTIxMzcsImV4cCI6MjA4NjQyODEzN30.hGREfoM3QWXWVKndGBmy3TGbHO7o1tt-eNH3NWbtOZU";
 const ANTHROPIC_API_KEY = import.meta.env?.VITE_ANTHROPIC_API_KEY ?? "";
 
-// ─── SUPABASE ────────────────────────────────────────────────────────────────
+// ─── SUPABASE ────────────────────────────────────────────────────────────────h
 async function saveIdeaToSupabase(idea) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/mashup_ideas`, {
     method: "POST",
